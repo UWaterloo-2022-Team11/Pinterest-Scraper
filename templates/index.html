@@ -1,0 +1,30 @@
+{% block content %}
+<div>
+    Team 11 - Pinterest Scraper
+</div>
+<div>
+    <a href="refresh/">Refresh</a>
+</div>
+<div class="container">
+        <p>Scrapers Running:</p>
+        <ul>
+            {% for key, value in scrapers.items() %}
+                <li>
+                    <a href="stop/{{key}}">Stop: {{key}}</a>
+                    <!-- <a href="force_stop/{{key}}">Kill: {{key}}</a> -->
+                </li>
+            {% endfor %}
+        </ul>
+</div>
+<div class="container">
+    <p>Scrapers log:</p>
+    <ul>
+        {% for value in log_tuples %}
+            <li>
+                <p>{{value}}</p>
+                <!-- <a href="force_stop/{{key}}">Kill: {{key}}</a> -->
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
