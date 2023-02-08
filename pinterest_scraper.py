@@ -8,12 +8,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 import json
 import chromedriver_autoinstaller
 import time
-# from selenium.common.exceptions import StaleElementReferenceException
 import json
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-# from selenium.webdriver.common.keys import Keys
-# from selenium.common.exceptions import StaleElementReferenceException
 
 import signal
 import psycopg2
@@ -55,12 +52,10 @@ db_con = {}
 with open('db_con.json', 'r') as f:
     db_con = json.load(f)
 
-print(db_con['host'])
 # needed to install chrome driver
 
 
 chromedriver_autoinstaller.install() 
-#'c:\\Users\\Eric\\anaconda3\\lib\\site-packages\\chromedriver_autoinstaller\\105\\chromedriver.exe'
 
 
 # open it, go to a website, and get results
@@ -133,22 +128,7 @@ def get_data(element):
     
 def scrape_user(username, max_elapse=600):
     start = time.time()
-    # wd.get(f'https://www.pinterest.ca/{username}/')
-    # WebDriverWait(wd, 10).until(
-    #     EC.presence_of_element_located((By.XPATH, '//*[@data-test-id="pwt-grid-item"]'))
-    # )
     pin_count = -1
-#     try:
-#         pins = wd.find_elements(By.XPATH, '//*[@data-test-id="pwt-grid-item"]')
-#         header = pins[0].find_element(By.XPATH, "//h2[@title='All Pins']")
-#         parent = header.find_element(By.XPATH, '..').find_element(By.XPATH, '..')
-#         child = parent.find_element(By.CSS_SELECTOR, 'div:nth-of-type(2)')
-#         final = child.get_attribute('innerHTML')
-#         pin_count = int(re.findall(r'\b\d+[,\d]*\b Pins', final)[0][:-4].replace(',', ''))
-#     except Exception as e:
-#         # Log the exception type and message
-#         print("Exception type:", type(e))
-#         print("Exception message:", e)
         
     
     link = f'https://www.pinterest.ca/{username}/pins'
@@ -159,7 +139,6 @@ def scrape_user(username, max_elapse=600):
     
     wait = WebDriverWait(wd, 10)
     wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@data-test-id="pin"]')))
-#     wd.save_screenshot('./test.png')
     pins = {}
     count = 0
     while 1:
@@ -181,24 +160,8 @@ def scrape_user(username, max_elapse=600):
         if pin_count > 0 and count >= pin_count-1:
             print('pin cnt')
             break
-#         if not added:
-#             break
-#         body.send_keys(Keys.PAGE_DOWN)
 
         wd.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # chatgpt uses this to scroll
-        # window.scrollTo(0, document.body.scrollHeight);
-#         time.sleep(2) # give time for images to load?
-        
-        
-        # test chat gpt code
-#         try:
-#             wait.until(lambda driver: len(pins) > initial_pin_count)
-#         except Exception as e:
-#             print('excepotioin done')
-#             break
-#         pins = wd.find_elements(By.XPATH, '//*[@data-test-id="pin"]')
-        
         # detect if at bottom of page
         time.sleep(1.5)
         at_bottom = wd.execute_script('return (window.innerHeight + window.scrollY) >= document.body.offsetHeight-10')
@@ -209,7 +172,6 @@ def scrape_user(username, max_elapse=600):
         if time.time()-start>max_elapse:
             print('max time')
             break
-#         wd.save_screenshot('./test.png')
     return pins
 
 signal.signal(signal.SIGINT, keyboardInterruptHandler)
