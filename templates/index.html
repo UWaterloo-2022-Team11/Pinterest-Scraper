@@ -4,6 +4,7 @@
 </div>
 <div>
     <a href="refresh/">Refresh</a>
+    <a href="start_scraper/">Start Scraper</a>
 </div>
 <div class="container">
         <p>Scrapers Running:</p>
@@ -11,7 +12,7 @@
             {% for key, value in scrapers.items() %}
                 <li>
                     <a href="stop/{{key}}">Stop: {{key}}</a>
-                    <!-- <a href="force_stop/{{key}}">Kill: {{key}}</a> -->
+                    <a href="kill/{{key}}">Kill: {{key}}</a>
                 </li>
             {% endfor %}
         </ul>

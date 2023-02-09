@@ -4,6 +4,8 @@ from flask import render_template
 import os
 import psutil
 import signal
+import subprocess
+import sys
 
 scrapers = {}
 log = ''
@@ -22,22 +24,36 @@ class Scraper():
         self.active = 0
 
 
-@app.route("/api_url/", methods=["GET"])
-def handle_api_requests():
-    return str(request.form)
-
+# inject scrapers into template
 @app.context_processor
 def inject_scrapers():
     return dict(scrapers=scrapers)
 
+# injects log into template
 @app.context_processor
 def inject_log_tuples():
     return dict(log_tuples=log_tuples)
+
+
+@app.route('/start_scraper/')
+def start_scraper():
+    pid = subprocess.Popen([sys.executable, "pinterest_scraper.py"], shell = True)
+    print(pid)
+    return ''
 
 @app.route('/stop/<int:n1>')
 def stop(n1):
     # soft stop, use to tell scraper to stop after current user
     global scrapers
+    scrapers[n1].stop()
+    return ''
+
+@app.route('/kill/<int:n1>')
+def kill(n1):
+    # soft stop, use to tell scraper to stop after current user
+    global scrapers
+    # os.kill(n1, signal.CTRL_BREAK_EVENT)
+    subprocess.call(['taskkill', '/F', '/T', '/PID',  str(n1)])
     scrapers[n1].stop()
     return ''
 
@@ -70,10 +86,6 @@ def finished(n1):
     del scrapers[n1]
     return ''
 
-# @app.route('/force_stop/<int:n1>')
-# def force_stop(n1):
-#     os.kill(scrapers[n1].pid, signal.SIGKILL)
-#     return ''
 
 @app.route('/register/<int:n1>')
 def register(n1):
@@ -84,9 +96,12 @@ def register(n1):
 
 @app.route('/refresh/')
 def refresh():
+    keys_to_remove = []
     for scraper_id in scrapers:
         if not psutil.pid_exists(scraper_id):
-            del scrapers[scraper_id]
+            keys_to_remove.append(scraper_id)
+    for scraper_id in keys_to_remove:
+        del scrapers[scraper_id]
     return ''
 
 @app.route('/')
@@ -95,7 +110,7 @@ def home():
     return render_template(
         'index.html'
     )
-app.run()
 
-
-
+if __name__== '__main__':
+    app.run()
+    # app.run(debug=True)
