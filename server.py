@@ -32,7 +32,7 @@ def inject_scrapers():
 # injects log into template
 @app.context_processor
 def inject_log_tuples():
-    return dict(log_tuples=log_tuples)
+    return dict(log_tuples=log_tuples[-100:])
 
 
 @app.route('/start_scraper/')
