@@ -22,10 +22,10 @@ import os
 import time
 
 
-pid = os.getppid()
+process_id = os.getppid()
 localhost = 'http://localhost:5000'
 # register scraper
-requests.get(f'{localhost}/register/{pid}')
+requests.get(f'{localhost}/register/{process_id}')
 
 
 parser = argparse.ArgumentParser()
@@ -34,7 +34,7 @@ parser.add_argument('--limit', type=int, dest='limit', default=400,
 
 args = parser.parse_args()
 
-logging.basicConfig(filename=f'{pid}-scraper.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=f'{process_id}-scraper.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 device_name = socket.gethostname()
 options = webdriver.ChromeOptions()
@@ -85,7 +85,7 @@ conn = psycopg2.connect(database="postgres",
 cur = conn.cursor()
 
 def shutdown():
-    requests.get(f'{localhost}/finished/{pid}')
+    requests.get(f'{localhost}/finished/{process_id}')
     print('shutting down browser')
     wd.close()
     print('closing db connection')
@@ -178,7 +178,7 @@ signal.signal(signal.SIGINT, keyboardInterruptHandler)
 logging.log(0, "Starting log")
 while True:
     # check if scraper should continue
-    if not requests.get(f'{localhost}/active/{pid}').json()['active']:
+    if not requests.get(f'{localhost}/active/{process_id}').json()['active']:
         shutdown()
 
     # get usernames we want to scrape
@@ -220,16 +220,16 @@ while True:
                 cur.execute(
                     "INSERT INTO public.\"PinData\" (pinid, img, link, username) VALUES (%s, %s, %s, %s);", (pid, image_url, link_url, user)
                 )
-            cur.execute(f"UPDATE public.\"Usernames\" SET \"Scraped\" = true WHERE \"Username\" = '{device_name}';")
+            cur.execute(f"UPDATE public.\"Usernames\" SET \"Scraped\" = true WHERE \"Username\" = '{user}';")
             conn.commit()
 
-            requests.get(f'{localhost}/scraped_user/{pid}/{user}')
+            requests.get(f'{localhost}/scraped_user/{process_id}/{user}')
         except Exception as e:
             print(f'failed on user: {user}')
             print(e)
             wd.save_screenshot(f'./{user}-error.png')
             logging.error(e)
             logging.warning(f'failed on user: {user}')
-            requests.get(f'{localhost}/failed_user/{pid}/{user}')
+            requests.get(f'{localhost}/failed_user/{process_id}/{user}')
         if args.limit and user_count > args.limit:
             keyboardInterruptHandler('', '')
