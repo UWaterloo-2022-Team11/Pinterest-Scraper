@@ -1,5 +1,6 @@
 .DS_Store
 *.png
+*.log
 .huskyrc.json
 out
 log.log
